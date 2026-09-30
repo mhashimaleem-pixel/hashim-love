@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>For Blahsim 💜</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;1,400&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#120826;--card:rgba(255,255,255,.08);--line:rgba(200,160,255,.3);--pk:#ff7ad9;--lv:#c9a2ff;--tx:#f5ecff}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{background:radial-gradient(circle at 50% 20%,#3a1670,var(--bg) 70%);color:var(--tx);font-family:Nunito,system-ui,sans-serif;overflow-x:hidden}
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:0}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;font-weight:600}
+.layer{position:relative;z-index:1}
+#gate{position:fixed;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;gap:16px}
+#gate.off{opacity:0;pointer-events:none;transition:opacity 1.2s}
+#gate h1{font-size:clamp(28px,6vw,52px)}
+input,button{font:inherit}
+input[type=text]{padding:12px 18px;border-radius:30px;border:1px solid var(--line);background:rgba(0,0,0,.35);color:var(--tx);width:min(320px,80vw);text-align:center}
+.btn{padding:12px 26px;border-radius:30px;border:0;background:linear-gradient(135deg,#a855f7,var(--pk));color:#fff;font-weight:700;cursor:pointer;box-shadow:0 0 24px rgba(200,100,255,.5)}
+.btn:active{transform:scale(.96)}
+#err{color:#ff9bd0;min-height:22px}
+#hint{color:var(--lv);font-size:14px}
+nav{position:sticky;top:0;z-index:4;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:12px;background:rgba(18,8,38,.7);backdrop-filter:blur(10px)}
+nav button{padding:8px 14px;border-radius:20px;border:1px solid var(--line);background:transparent;color:var(--tx);cursor:pointer}
+nav button.on{background:var(--pk);color:#2a0640;border-color:var(--pk);font-weight:700}
+main{max-width:980px;margin:0 auto;padding:24px 16px 80px}
+.page{display:none}.page.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px;backdrop-filter:blur(8px)}
+.center{text-align:center}
+h2{font-size:clamp(26px,5vw,40px);margin-bottom:14px}
+.big{font-family:Fraunces,serif;font-size:clamp(72px,20vw,170px);line-height:1;color:var(--pk);text-shadow:0 0 40px rgba(255,122,217,.7)}
+.sub{color:var(--lv);margin-top:8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.tl{border-left:2px solid var(--pk);padding-left:18px;display:grid;gap:14px}
+.tl div{position:relative}.tl div:before{content:"";position:absolute;left:-25px;top:6px;width:12px;height:12px;border-radius:50%;background:var(--pk);box-shadow:0 0 12px var(--pk)}
+.tl b{color:var(--pk)}
+.comp{cursor:pointer;transition:transform .2s}.comp:hover{transform:translateY(-4px) rotate(-1deg)}
+.comp span{color:var(--pk);font-weight:700}
+input[type=range]{width:100%;accent-color:var(--pk)}
+#bodyBox{height:min(70vh,520px);touch-action:pan-y;border-radius:20px;border:1px solid var(--line);background:rgba(0,0,0,.25)}
+#bodyBox canvas{display:block}
+#msg{min-height:64px;margin-top:14px;font-size:18px}
+#no{position:relative}
+.page.on{animation:pin .7s cubic-bezier(.2,.8,.2,1)}
+@keyframes pin{from{opacity:0;transform:perspective(900px) rotateX(14deg) translateY(30px)}}
+.card{transition:transform .15s;transform-style:preserve-3d}
+.orb{border-radius:50%;display:grid;place-items:center;font-size:30px;width:120px;height:120px;transition:all .8s;box-shadow:inset -10px -12px 25px #0009,0 0 34px currentColor}
+.orb.l{background:radial-gradient(circle at 30% 28%,#ffc2f3,#a855f7 55%,#3b0a70);color:#b25cff}
+.orb.h{background:radial-gradient(circle at 30% 28%,#ffd6c9,#e11d48 55%,#4a0016);color:#e11d48}
+#arena{display:flex;justify-content:space-around;align-items:center;height:260px;perspective:700px}
+#arena.fight .orb{animation:hit .45s 5}
+@keyframes hit{50%{transform:translateX(var(--d)) scale(1.12) rotateY(180deg)}}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button,.seg button{padding:8px 14px;border-radius:20px;border:1px solid var(--line);background:var(--card);color:var(--tx);cursor:pointer}
+.chips button:hover,.seg .on{background:var(--pk);color:#2a0640}
+.seg{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px 0}
+.fh{position:fixed;pointer-events:none;z-index:9;font-size:24px;animation:up 2s forwards}
+@keyframes up{to{transform:translateY(-160px);opacity:0}}
+@media(prefers-reduced-motion:reduce){.fh{animation-duration:.01s}}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+
+<div id="gate">
+  <h1 id="g1">A little world, just for one girl 💜</h1>
+  <button class="btn" id="start">Enter</button>
+  <div id="ask" style="display:none;gap:12px;flex-direction:column;align-items:center">
+    <p>Tell me your name. Only one girl can come in.</p>
+    <input type="text" id="nm" placeholder="Your full name" autocomplete="off">
+    <button class="btn" id="go">Unlock</button>
+    <div id="err"></div>
+    <div id="hint">Hint: the second name is your husband's name 😌</div>
+  </div>
+</div>
+
+<div class="layer" id="site" style="visibility:hidden">
+<nav id="nav"></nav>
+<main>
+<section class="page on" id="p-home"><div class="card center">
+  <h2>Hi Blahsim 💜</h2>
+  <p class="sub">Together since 24 January 2024</p>
+  <div class="big" id="days">0</div>
+  <p class="sub">days of knowing you</p>
+  <p id="ymd" style="margin-top:18px;font-size:18px"></p>
+  <p id="hms" class="sub"></p>
+  <p style="margin-top:20px">Tap anywhere for hearts. Explore the tabs above.</p>
+</div></section>
+
+<section class="page" id="p-story"><div class="card">
+  <h2>Our story</h2>
+  <div class="tl">
+    <div><b>24 Jan 2024</b><br>The day we met.</div>
+    <div><b>March 2024</b><br>We fell in love for the first time.</div>
+    <div><b>23 Mar 2024</b><br>We confessed to each other.</div>
+    <div><b>28 Mar 2024</b><br>You wished me the best birthday.</div>
+    <div><b>June 2025</b><br>You came back.</div>
+    <div><b>August 2025</b><br>After no contact, we fell in love again.</div>
+    <div><b>Fri 7 Nov 2025</b><br>We met for the first time in real life, at an event in a school.</div>
+    <div><b>Sat 8 Nov 2025</b><br>Emporium and Dolmen Mall.</div>
+    <div><b>Sun 9 Nov 2025</b><br>Emporium again.</div>
+    <div><b>17 Nov 2025</b><br>We met in our society.</div>
+  </div>
+</div></section>
+
+<section class="page" id="p-comp"><h2>31 things about you</h2><p class="sub" style="margin-bottom:14px">Tap a card.</p><div class="grid" id="cg"></div></section>
+
+<section class="page" id="p-calc"><div class="card">
+  <h2>Love vs hate battle</h2>
+  <p class="center sub">Which answer do you want to see?</p>
+  <div class="seg"><button class="on" data-m="love">How much I love him</button><button data-m="hate">How much I hate him</button></div>
+  <div id="arena"><div class="orb l" id="ol" style="--d:90px">💜</div><div class="orb h" id="oh" style="--d:-90px">💢</div></div>
+  <p>Love for Hashim: <b id="lv">500</b>%</p>
+  <input type="range" id="love" min="0" max="1000" value="500">
+  <p style="margin-top:12px">Hate for Hashim: <b id="hv">50</b>%</p>
+  <input type="range" id="hate" min="0" max="100" value="50">
+  <p style="margin-top:18px"><button class="btn" id="calc">Let them fight ⚔️</button></p>
+  <div id="res" style="margin-top:18px;font-size:18px"></div>
+</div></section>
+
+<section class="page" id="p-quiz"><h2>Month quiz 📅</h2>
+  <div class="card center" id="qcard">
+    <div class="big" id="qm" style="font-size:clamp(44px,12vw,90px)">?</div>
+    <p id="qq" style="margin:10px 0">Spin for a month, or pick one below.</p>
+    <p style="margin:10px 0"><input type="text" id="qa" placeholder="Type your answer" style="display:none" autocomplete="off"> <button class="btn" id="qs" style="display:none">Check</button></p>
+    <button class="btn" id="spin">Spin a month 🎲</button>
+    <p id="qr" style="margin-top:14px;font-size:18px"></p>
+    <p id="sc" class="sub"></p>
+  </div>
+  <p class="sub" style="margin:16px 0 8px">Or choose a month yourself:</p><div class="chips" id="mc"></div>
+</section>
+
+<section class="page" id="p-body"><h2>Every part of you</h2>
+  <p class="sub" style="margin-bottom:10px">Drag to spin. Tap a part.</p>
+  <div id="bodyBox"></div>
+  <div id="msg" class="card center">Tap somewhere 💜</div>
+</section>
+
+<section class="page" id="p-more"><div class="grid">
+  <div class="card"><h3>Reasons I choose you</h3><p id="reason" style="margin:10px 0">Tap the button.</p><button class="btn" id="rb">Another reason</button></div>
+  <div class="card"><h3>Love charger</h3><p style="margin:10px 0">Keep tapping. Let's see how much love fits.</p><div style="height:18px;background:#0006;border-radius:9px;overflow:hidden"><div id="fill" style="height:100%;width:0;transition:width .2s;background:linear-gradient(90deg,#a855f7,#ff7ad9)"></div></div><p id="fl" class="sub" style="margin:10px 0;font-size:20px;min-height:28px"></p><button class="btn" id="hold">Tap to charge 💜</button></div>
+  <div class="card"><h3>A note from Hashim</h3><p id="note" style="min-height:120px;margin-top:10px"></p></div>
+</div></section>
+
+<section class="page" id="p-marry"><div class="card center">
+  <h2>Blahsim, will you marry me? 💍</h2>
+  <p class="sub">Choose wisely.</p>
+  <div style="margin:30px;display:flex;gap:30px;justify-content:center;align-items:center;min-height:90px">
+    <button class="btn" id="yes" style="font-size:22px">Yes 💜</button>
+    <button class="btn" id="no" style="background:#444;box-shadow:none">No</button>
+  </div>
+  <p id="ym" style="font-size:20px"></p>
+</div></section>
+</main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+const START=new Date(2024,0,24);
+const FACE_IMG="data:image/jpeg;base64,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";
+
+/* ---------- background 3D ---------- */
+const bg=$('#bg'),R=new THREE.WebGLRenderer({canvas:bg,antialias:true,alpha:true});
+R.setPixelRatio(Math.min(devicePixelRatio,2));
+const S=new THREE.Scene(),C=new THREE.PerspectiveCamera(55,1,.1,100);C.position.z=9;
+S.add(new THREE.AmbientLight(0xb080ff,.8));
+const pl=new THREE.PointLight(0xff7ad9,2.2,60);pl.position.set(4,5,8);S.add(pl);
+const pl2=new THREE.PointLight(0x8a4bff,2,60);pl2.position.set(-6,-3,6);S.add(pl2);
+const sh=new THREE.Shape();
+sh.moveTo(25,25);sh.bezierCurveTo(25,25,20,0,0,0);sh.bezierCurveTo(-30,0,-30,35,-30,35);
+sh.bezierCurveTo(-30,55,-10,77,25,95);sh.bezierCurveTo(60,77,80,55,80,35);
+sh.bezierCurveTo(80,35,80,0,50,0);sh.bezierCurveTo(35,0,25,25,25,25);
+const hg=new THREE.ExtrudeGeometry(sh,{depth:22,bevelEnabled:true,bevelSize:6,bevelThickness:6,bevelSegments:4});
+hg.center();hg.rotateZ(Math.PI);hg.scale(.03,.03,.03);
+const big=new THREE.Mesh(hg,new THREE.MeshStandardMaterial({color:0xb45cff,emissive:0x4a1080,roughness:.3,metalness:.4}));
+big.scale.setScalar(2.4);S.add(big);
+const fl=[];
+for(let i=0;i<70;i++){
+  const m=new THREE.Mesh(hg,new THREE.MeshStandardMaterial({color:new THREE.Color().setHSL(.72+Math.random()*.2,.8,.6),emissive:0x2a0a4a,roughness:.4}));
+  m.position.set((Math.random()-.5)*26,(Math.random()-.5)*16,-4-Math.random()*12);
+  const s=.15+Math.random()*.35;m.scale.setScalar(s);
+  m.userData={sp:.2+Math.random(),ph:Math.random()*6};fl.push(m);S.add(m);
+}
+let unlocked=false,px=0,py=0;
+const sg=new THREE.BufferGeometry(),sa=[];for(let i=0;i<500;i++)sa.push((Math.random()-.5)*60,(Math.random()-.5)*40,-Math.random()*30-5);
+sg.setAttribute('position',new THREE.Float32BufferAttribute(sa,3));
+const stars=new THREE.Points(sg,new THREE.PointsMaterial({color:0xe0c8ff,size:.08}));S.add(stars);
+const ring=new THREE.Mesh(new THREE.TorusGeometry(2.6,.03,12,90),new THREE.MeshBasicMaterial({color:0xff7ad9}));S.add(ring);
+addEventListener('pointermove',e=>{px=e.clientX/innerWidth-.5;py=-(e.clientY/innerHeight-.5)});
+function size(){R.setSize(innerWidth,innerHeight);C.aspect=innerWidth/innerHeight;C.updateProjectionMatrix();sizeBody()}
+addEventListener('resize',size);
+
+/* ---------- body 3D ---------- */
+let BR,BS,BC,BG,bodyReady=false,drag=null,moved=0,pageOn='home';
+const ray=new THREE.Raycaster(),mouse=new THREE.Vector2();
+function M(g,c,x,y,z,n,s,r){const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:c,roughness:.5,metalness:.05,emissive:0x1a0533,side:THREE.DoubleSide}));m.position.set(x,y,z);if(s)m.scale.set(...s);if(r)m.rotation.set(...r);m.userData.part=n;BG.add(m);return m}
+function initBody(){
+  if(bodyReady)return;bodyReady=true;
+  BR=new THREE.WebGLRenderer({antialias:true,alpha:true});BR.setPixelRatio(Math.min(devicePixelRatio,2));$('#bodyBox').appendChild(BR.domElement);
+  BS=new THREE.Scene();BC=new THREE.PerspectiveCamera(38,1,.1,50);BC.position.set(0,2.4,9.2);BC.lookAt(0,2.3,0);
+  BS.add(new THREE.AmbientLight(0xd8b8ff,.85));
+  const d=new THREE.DirectionalLight(0xffc4f0,1.5);d.position.set(3,6,7);BS.add(d);
+  const d2=new THREE.DirectionalLight(0x8a5bff,1);d2.position.set(-5,2,-4);BS.add(d2);
+  BG=new THREE.Group();BS.add(BG);
+  const sp=r=>new THREE.SphereGeometry(r,24,20),cy=(a,b,h)=>new THREE.CylinderGeometry(a,b,h,18);
+  const SK=0xf1b9a2,HR=0x2b1238,DR=0x9d4dff;
+  const pts=[[.14,3.74],[.27,3.66],[.36,3.5],[.385,3.3],[.34,3.08],[.27,2.85],[.29,2.65],[.37,2.42],[.43,2.2],[.46,1.9],[.5,1.55],[.55,1.25]].map(p=>new THREE.Vector2(p[0],p[1]));
+  M(new THREE.LatheGeometry(pts,40),DR,0,0,0,'dress',[1,1,.68]);
+  /* face: her photo projected flat onto the front of the head */
+  const fg=sp(.29),fp=fg.attributes.position,fu=fg.attributes.uv;
+  for(let i=0;i<fp.count;i++){fu.setXY(i,.5+fp.getX(i)/.58,.5+fp.getY(i)/.58)}
+  fu.needsUpdate=true;
+  const faceM=M(fg,0xffffff,0,4.2,0,'face',[.88,1.1,.95]);
+  const ft=new THREE.TextureLoader().load(FACE_IMG);
+  faceM.material.map=ft;faceM.material.emissiveMap=ft;faceM.material.emissive.setHex(0xffffff);faceM.material.emissiveIntensity=.4;faceM.material.roughness=.8;faceM.material.needsUpdate=true;
+  M(cy(.075,.085,.28),SK,0,3.86,0,'neck');
+  M(sp(.31),HR,0,4.24,-.07,'hair',[.97,1.12,1.02]);
+  M(cy(.28,.17,1.35),HR,0,3.35,-.17,'hair',[1,1,.55]);
+  const hand=s=>{const g=new THREE.Group();g.position.set(s*.505,2.36,0);BG.add(g);
+    const a=(geo,x,y,sc)=>{const m=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:SK,roughness:.5,emissive:0x1a0533}));m.position.set(x,y,0);if(sc)m.scale.set(...sc);m.userData.part='hands';g.add(m)};
+    a(sp(.05),0,0,[1,1.3,.55]);[-.03,-.01,.01,.03].forEach(x=>a(cy(.011,.009,.1),x,-.09));a(cy(.012,.01,.07),-s*.05,-.02)};
+  [-1,1].forEach(s=>{
+    M(sp(.04),SK,s*.255,4.2,0,'face',[.5,1,.8]);
+    M(cy(.05,.03,.75),HR,s*.27,3.85,.02,'hair');
+    M(sp(.085),SK,s*.4,3.58,0,'shoulders');
+    M(cy(.058,.048,.62),SK,s*.43,3.28,0,'arms',null,[0,0,s*.06]);
+    M(sp(.05),SK,s*.465,2.97,0,'arms');
+    M(cy(.048,.038,.56),SK,s*.485,2.71,0,'arms',null,[0,0,s*.04]);
+    hand(s);
+    M(cy(.1,.055,1.15),SK,s*.17,.68,0,'legs');
+    M(sp(.075),SK,s*.17,.85,-.03,'legs',[1,1.6,1]);
+    M(sp(.1),0x5a1a8a,s*.17,.07,.1,'feet',[.9,.55,2.2]);
+  });
+  addEventListener('resize',sizeBody);sizeBody();
+  const el=BR.domElement;
+  el.addEventListener('pointerdown',e=>{drag=e.clientX;moved=0;el.setPointerCapture(e.pointerId)});
+  el.addEventListener('pointermove',e=>{if(drag!==null){const dx=e.clientX-drag;drag=e.clientX;moved+=Math.abs(dx);BG.rotation.y+=dx*.01}});
+  el.addEventListener('pointerup',e=>{drag=null;if(moved<6)pick(e)});
+}
+function sizeBody(){if(!bodyReady)return;const b=$('#bodyBox');BR.setSize(b.clientWidth,b.clientHeight);BC.aspect=b.clientWidth/b.clientHeight;BC.updateProjectionMatrix()}
+const MSG={
+ face:'I love her face 1000% 😍',hands:'I love her hands 100000% 🤲💜',
+ hair:'Her hair: 5000% love. UNLIMITED LOVE. LOVE OVERDOSE 💜💜💜',neck:'Her neck: 10000% love. LOVE OVERDOSE 💜',
+ shoulders:'Her shoulders: 3000% love. UNLIMITED LOVE 💜',arms:'Her arms: 9999% love. LOVE OVERDOSE, hug me forever 🤗',
+ tummy:'Her tummy: 7000% love. UNLIMITED LOVE. LOVE OVERDOSE 🥰',legs:'Her legs: 99999% love. LOVE OVERDOSE, please stop before I explode 💜',
+ feet:'Her tiny feet: 20000% love. UNLIMITED LOVE 🦶💜',
+ all:'All of her: 1,000,000% love. UNLIMITED LOVE. LOVE OVERDOSE 💜💜💜'
+};
+function pick(e){
+  const r=BR.domElement.getBoundingClientRect();
+  mouse.set(((e.clientX-r.left)/r.width)*2-1,-((e.clientY-r.top)/r.height)*2+1);
+  ray.setFromCamera(mouse,BC);
+  const h=ray.intersectObjects(BG.children,true)[0];if(!h)return;
+  const o=h.object,m=$('#msg');let p=o.userData.part;
+  if(p==='dress'){const y=h.point.y-BG.position.y;p=y>3.6?'shoulders':y>3.05?'chest':y>2.55?'tummy':y>1.9?'butt':'legs'}
+  const old=o.material.emissive.getHex();o.material.emissive.setHex(0xff2fd0);setTimeout(()=>o.material.emissive.setHex(old),300);
+  m.textContent=MSG[p==='chest'||p==='butt'?'all':p];hearts(e.clientX,e.clientY,6)
+}
+
+/* ---------- loop ---------- */
+const clock=new THREE.Clock();
+(function loop(){
+  requestAnimationFrame(loop);const t=clock.getElapsedTime();
+  big.rotation.y=t*.8;ring.rotation.x=t*.5;ring.rotation.y=t*.3;ring.position.copy(big.position);ring.scale.setScalar(big.scale.x*.62);stars.rotation.y=t*.02;C.position.x+=(px*2-C.position.x)*.04;C.position.y+=(py*1.5-C.position.y)*.04;C.lookAt(0,0,0);
+  const tgt=unlocked?{x:5.5,y:3.2,z:-3,s:.6}:{x:0,y:0,z:0,s:(2.4+Math.sin(t*3)*.12)*Math.min(1,C.aspect)};
+  big.position.x+=(tgt.x-big.position.x)*.03;big.position.y+=(tgt.y-big.position.y)*.03;big.position.z+=(tgt.z-big.position.z)*.03;
+  big.scale.setScalar(big.scale.x+(tgt.s-big.scale.x)*.05);
+  fl.forEach(m=>{m.rotation.y=t*m.userData.sp;m.position.y+=Math.sin(t*m.userData.sp+m.userData.ph)*.004});
+  R.render(S,C);
+  if(bodyReady&&pageOn==='body'){if(drag===null)BG.rotation.y+=.004;BG.position.y=Math.sin(t*1.6)*.03;BR.render(BS,BC)}
+})();
+size();
+
+/* ---------- gate ---------- */
+$('#start').onclick=()=>{$('#start').style.display='none';$('#g1').textContent='Hold on. Who is this? 👀';$('#ask').style.display='flex';$('#nm').focus()};
+function unlock(){
+  const v=$('#nm').value.toLowerCase();
+  if(v.includes('mishal')&&v.includes('hashim')){
+    unlocked=true;$('#gate').classList.add('off');$('#site').style.visibility='visible';hearts(innerWidth/2,innerHeight/2,14);
+  }else if(v.includes('mishal')){$('#err').textContent='Close, Mishal! Finish the name with your husband\'s name 😌'}
+  else{$('#err').textContent='Access denied. This world belongs to one girl only 🔒'}
+}
+$('#go').onclick=unlock;$('#nm').addEventListener('keydown',e=>{if(e.key==='Enter')unlock()});
+
+/* ---------- nav ---------- */
+const tabs=[['home','Home'],['story','Our story'],['comp','Compliments'],['calc','Calculator'],['quiz','Month quiz'],['body','You'],['more','Extras'],['marry','Marry me']];
+tabs.forEach(([id,l])=>{const b=document.createElement('button');b.textContent=l;b.dataset.id=id;
+  b.onclick=()=>{pageOn=id;document.querySelectorAll('.page').forEach(p=>p.classList.toggle('on',p.id==='p-'+id));
+   document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x===b));
+   if(id==='body'){initBody();sizeBody()}};
+  $('#nav').appendChild(b)});
+$('#nav').firstChild.classList.add('on');
+
+/* ---------- counter ---------- */
+function tick(){
+  const n=new Date();$('#days').textContent=Math.floor((n-START)/864e5).toLocaleString();
+  let y=n.getFullYear()-2024,m=n.getMonth()-0,d=n.getDate()-24;
+  if(d<0){m--;d+=new Date(n.getFullYear(),n.getMonth(),0).getDate()}
+  if(m<0){y--;m+=12}
+  $('#ymd').textContent=`${y} years, ${m} months, ${d} days`;
+  const ms=n-START;
+  $('#hms').textContent=`${Math.floor(ms/36e5).toLocaleString()} hours · ${Math.floor(ms/6e4).toLocaleString()} minutes · ${Math.floor(ms/1e3).toLocaleString()} seconds`;
+}
+tick();setInterval(tick,1000);
+
+/* ---------- compliments ---------- */
+const CP=["You always bless my eyes.","The happiness of talking to you is beyond words.","Your smile fixes my whole day.","Your voice is my favourite sound.","You make ordinary days feel special.","Your laugh is contagious.","You are beautiful inside and out.","Talking to you feels like home.","Your eyes hold a whole universe.","You are the calm in my chaos.","You make me want to be better.","Your kindness is rare.","You are my favourite notification.","Being around you feels peaceful.","Your cuteness is out of control.","You are smarter than you think.","You light up every room.","I never get tired of you.","You are my best surprise.","Your hugs are the safest place.","You make me smile for no reason.","You are effortlessly graceful.","Everything is better with you.","You are my favourite person.","You are stronger than you know.","Your presence is a gift.","You have the sweetest heart.","You are my happy place.","I would choose you in every lifetime.","You are my dream come true.","You are simply Blahsim, and that is perfect."];
+const cg=$('#cg');CP.forEach((t,i)=>{const d=document.createElement('div');d.className='card comp';
+  d.innerHTML=`<span>#${i+1}</span><p style="margin-top:6px">${t}</p>`;
+  d.onclick=e=>hearts(e.clientX,e.clientY,4);cg.appendChild(d)});
+
+/* ---------- calculator ---------- */
+let mode='love';
+const orb=()=>{const l=+$('#love').value,h=+$('#hate').value;$('#lv').textContent=l;$('#hv').textContent=h;
+  $('#ol').style.width=$('#ol').style.height=(60+l*.13)+'px';$('#oh').style.width=$('#oh').style.height=(60+h*1.3)+'px'};
+$('#love').oninput=$('#hate').oninput=orb;orb();
+document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{mode=b.dataset.m;document.querySelectorAll('.seg button').forEach(x=>x.classList.toggle('on',x===b))});
+$('#calc').onclick=()=>{
+  const l=+$('#love').value,h=+$('#hate').value,a=$('#arena');
+  $('#ol').style.transform=$('#oh').style.transform='';
+  $('#res').textContent='⚔️ Love and hate are fighting...';a.classList.add('fight');
+  setTimeout(()=>{a.classList.remove('fight');
+    const t=Math.round((l/10+h)/2),sc=mode==='love'?`Total love: <b style="font-size:28px;color:var(--pk)">${Math.max(1000,(l+h)*10).toLocaleString()}%</b> LOVE OVERDOSE 🚨`:`Total hate: <b style="font-size:28px;color:var(--pk)">${100-t}%</b> (fake, obviously)`;
+    let x;
+    if(h>l){$('#oh').style.transform='scale(1.2)';$('#ol').style.transform='scale(.6)';x=`${sc}<br>Hate wins?! 😤<br><b>U can't hate Hashim that much, tsk tsk. Ajeeb, jao kam karo!</b>`}
+    else{$('#oh').style.transform='scale(.5)';$('#ol').style.transform='scale(1.2)';x=`${sc}<br>Love ${l}% vs hate ${h}%. The love outweighs the hate 💜 UNLIMITED LOVE<br>You love him, he loves you, and you both should get married 💍`;hearts(innerWidth/2,innerHeight/2,12)}
+    $('#res').innerHTML=x},2300)};
+
+/* ---------- extras ---------- */
+const RS=["Because you listen.","Because you laugh at my jokes.","Because you came back in 2025.","Because of Emporium, Dolmen and everywhere we walked.","Because you wished me the best birthday.","Because you are you.","Because you make me feel understood.","Because I can't imagine my days without you."];
+let ri=0;$('#rb').onclick=()=>{$('#reason').textContent=RS[ri++%RS.length]};
+let lc=0;const F=$('#fill');
+$('#hold').onclick=e=>{lc+=lc<100?4:lc<1000?90:1400;F.style.width=Math.min(lc,100)+'%';
+  $('#fl').textContent=lc<100?lc+'%':lc>=9000?'∞ LOVE OVERDOSE. Hashim is crying 😭💜':lc.toLocaleString()+'% LOVE OVERDOSE 🚨';
+  $('#hold').animate([{transform:'scale(.92)'},{transform:'scale(1)'}],{duration:150});hearts(e.clientX,e.clientY,1)};
+const NOTE="Blahsim, from a day in January 2024 to today, you turned into my favourite person. I made this little world for you because you deserve something as special as you are. I love you 1000%, and more. 💜 - Hashim";
+let ni=0;const nt=setInterval(()=>{$('#note').textContent=NOTE.slice(0,ni++);if(ni>NOTE.length)clearInterval(nt)},35);
+
+/* ---------- month quiz ---------- */
+const MQ=[
+['January','How did our story begin?','met|meet|first|start|began|begin|hello|talk|know|saw|found|24','Think 24th January.'],
+['February','What is February famous for?','valentin|love day|14|rose|chocolate|heart|gift|romanc','Roses and chocolates.'],
+['March','What happened in March?','confess|love|birth|bday|bd|born|wish|cake|23|28|told|propos|feel','A confession... and a birthday.'],
+['April'],
+['May','What did I ask you in May?','mine|yours|with me|together|girlfriend|gf|be my','May u be...'],
+['June','What happened in June 2025?','back|return|came|come|text|messag|talk|contact|again|hello|reconnect|spoke|speak','After a long silence...'],
+['July'],
+['August','What happened in August?','love|fell|again|feeling|heart|crush|second|back|us','Love, take two.'],
+['September','What were we doing in September?','meet|plan|met|see|develop|grew|grow|love|closer|bond|together|date','Plans and feelings.'],
+['October'],
+['November','What happened in November 2025?','met|meet|mall|emporium|dolmen|school|event|society|first|real|person|face|walk|hang|saw|see|together','Real life, finally.'],
+['December','What is special about December?','birth|bday|bd|born|cake|her|celebr|gift|wish|party','Somebody special was born.']];
+let qi=-1,score=0,tries=0;const SPc=[0,2,7,10,11],OTc=[1,3,4,5,6,8,9],rnd=a=>a[Math.floor(Math.random()*a.length)];
+function showQ(i){qi=i;const q=MQ[i];$('#qm').textContent=q[0];$('#qq').textContent=q[1]||`Tell me anything about ${q[0]}. Anything at all 💭`;
+  $('#qa').style.display=$('#qs').style.display='inline-block';$('#qa').value='';$('#qr').textContent='';$('#qa').focus();
+  $('#qcard').animate([{transform:'perspective(800px) rotateY(90deg)',opacity:0},{transform:'none',opacity:1}],{duration:600,easing:'ease-out'})}
+$('#spin').onclick=()=>{let n=0;const t=setInterval(()=>{$('#qm').textContent=MQ[Math.floor(Math.random()*12)][0];if(++n>14){clearInterval(t);showQ(Math.random()<.9?rnd(SPc):rnd(OTc))}},80)};
+MQ.forEach((q,i)=>{const b=document.createElement('button');b.textContent=q[0];b.onclick=()=>showQ(i);$('#mc').appendChild(b)});
+function chk(){if(qi<0)return;const a=$('#qa').value.toLowerCase().trim(),q=MQ[qi];
+  if(!a){$('#qr').textContent='Type something first 💭';return}
+  tries++;const ok=!q[1]||new RegExp('\\b('+q[2]+')').test(a);
+  if(ok){score++;$('#qr').innerHTML='✅ Correct! Oh so u love Hashim hmmm 😏💜'+(!q[1]?`<br><span class="sub">idk what happened in ${q[0]}, but it's special somehow ✨</span>`:'');hearts(innerWidth/2,innerHeight/2,10)}
+  else $('#qr').textContent=`Hmm, not quite 🤔 Hint: ${q[3]}`;
+  $('#sc').textContent=`Score: ${score}/${tries}`}
+$('#qs').onclick=chk;$('#qa').addEventListener('keydown',e=>{if(e.key==='Enter')chk()});
+
+/* ---------- marry ---------- */
+const no=$('#no');let ox=0,oy=0,vx=0,vy=0,ptr=null;
+document.addEventListener('pointermove',e=>{ptr={x:e.clientX,y:e.clientY}});
+document.addEventListener('pointerdown',e=>{ptr={x:e.clientX,y:e.clientY}});
+document.addEventListener('pointerup',e=>{if(e.pointerType!=='mouse')ptr=null});
+document.addEventListener('pointercancel',()=>{ptr=null});
+['click','pointerdown'].forEach(t=>no.addEventListener(t,e=>{e.preventDefault();e.stopPropagation()}));
+(function drift(){
+  requestAnimationFrame(drift);if(pageOn!=='marry')return;
+  const r=no.getBoundingClientRect();if(!r.width)return;
+  const bx=r.left-ox,by=r.top-oy,cx=r.left+r.width/2,cy=r.top+r.height/2;
+  if(ptr){
+    const dx=cx-ptr.x,dy=cy-ptr.y,dist=Math.hypot(dx,dy)||1,RG=190;
+    if(dist<RG){
+      const f=1-dist/RG,a=.03+f*f*.5,nx=dx/dist,ny=dy/dist;
+      vx+=nx*a-ny*a*.4;vy+=ny*a+nx*a*.4;
+      if(dist<50){vx+=nx*1.2;vy+=ny*1.2}
+    }
+  }
+  vx*=.95;vy*=.95;
+  const sp=Math.hypot(vx,vy);if(sp>7){vx*=7/sp;vy*=7/sp}
+  ox+=vx;oy+=vy;
+  const x0=12-bx,x1=innerWidth-r.width-12-bx,y0=72-by,y1=innerHeight-r.height-12-by;
+  if(ox<x0){ox=x0;vx=Math.abs(vx)*.3}if(ox>x1){ox=x1;vx=-Math.abs(vx)*.3}
+  if(oy<y0){oy=y0;vy=Math.abs(vy)*.3}if(oy>y1){oy=y1;vy=-Math.abs(vy)*.3}
+  no.style.transform=`translate(${ox}px,${oy}px)`;
+})();
+$('#yes').onclick=()=>{$('#ym').textContent='SHE SAID YES!! 💍💜 Forever starts now, Blahsim.';for(let i=0;i<5;i++)setTimeout(()=>hearts(Math.random()*innerWidth,innerHeight*.7,8),i*250)};
+
+/* ---------- floating hearts ---------- */
+function hearts(x,y,n){for(let i=0;i<n;i++){const h=document.createElement('div');h.className='fh';h.textContent=['💜','💖','💗','💕'][i%4];
+  h.style.left=x+(Math.random()*80-40)+'px';h.style.top=y+(Math.random()*40-20)+'px';document.body.appendChild(h);setTimeout(()=>h.remove(),2000)}}
+addEventListener('click',e=>{if(unlocked&&!e.target.closest('canvas'))hearts(e.clientX,e.clientY,2)});
+document.addEventListener('pointermove',e=>{if(e.pointerType!=='mouse')return;
+  const c=e.target.closest&&e.target.closest('.card');
+  document.querySelectorAll('.card.tl3').forEach(x=>{if(x!==c){x.style.transform='';x.classList.remove('tl3')}});
+  if(!c)return;const r=c.getBoundingClientRect();c.classList.add('tl3');
+  c.style.transform=`perspective(900px) rotateY(${((e.clientX-r.left)/r.width-.5)*6}deg) rotateX(${-((e.clientY-r.top)/r.height-.5)*6}deg)`});
+</script>
+</body>
+</html>
